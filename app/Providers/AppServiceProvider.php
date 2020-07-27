@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Leave\GetIcsData;
+use App\Leave\ParseCalendar;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +16,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton(ParseCalendar::class, function($app){
+            $empty = [];
+            return new ParseCalendar($empty);
+        }) ;
+
+        $this->app->singleton(GetIcsData::class, function($app) {
+            return new GetIcsData();
+        });
     }
 
     /**

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Leave\ParseCalendar;
 
 class VacationController extends Controller
 {
-    public function store($Leave) {
-
+    public function store(ParseCalendar $parseCalendar) {
+        dd($parseCalendar->parseCalendar($parseCalendar));
     }
 }
