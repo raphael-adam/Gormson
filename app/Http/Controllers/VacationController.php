@@ -9,4 +9,8 @@ class VacationController extends Controller
     public function store(ParseCalendar $parseCalendar) {
         dd($parseCalendar->parseCalendar($parseCalendar));
     }
+
+    public function show() {
+        $this->vacationRepository->onVacation();
+    }
 }

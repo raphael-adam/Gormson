@@ -50,7 +50,7 @@ class VacationData extends Command
     {
         // get the data
         $icalData = $this->getIcalData();
-        CalenderEventsServiceProvider::parseCalendar($icalData);
+        ::parseCalendar($icalData);
 
     }
 

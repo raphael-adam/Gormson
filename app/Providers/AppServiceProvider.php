@@ -17,8 +17,8 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(ParseCalendar::class, function($app){
-            $empty = [];
-            return new ParseCalendar($empty);
+            // contract
+            return new ParseCalendar();
         }) ;
 
         $this->app->singleton(GetIcsData::class, function($app) {
