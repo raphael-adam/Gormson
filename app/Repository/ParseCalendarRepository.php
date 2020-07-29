@@ -48,7 +48,7 @@ class ParseCalendar
         foreach ($events as $event) {
             $summary = $event->summary;
             $calendarEvents[] = ["employee" => $this->extractEventDetails($summary),
-                "uid" => $this->extractUid($event->uid),
+                "vacationId" => $this->extractUid($event->uid),
                 "leaveStart" => $event->dtstart,
                 "leaveEnd" => $event->dtend,
                 "created" => $event->created];
