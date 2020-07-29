@@ -2,7 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Contracts\IcsDataRepositoryContract;
+use App\Contracts\ParseCalendarContract;
 use App\Http\Controllers\LeaveController;
+use App\Repository\IcsDataRepository;
+use App\Repository\ParseCalendarRepository;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
@@ -40,54 +45,114 @@ class MessageCommand extends Command
     public function handle()
     {
 
-        // ToDo auslagern in Repo / Contract
+       $calendarData = new IcsDataRepository();
+       $rawData = $calendarData->get();
+
+       $calendarParser = new ParseCalendarRepository();
+       $calendarParser->setRawCalendar($rawData);
+       $events = $calendarParser->parsedCalendar();
+
         $leaveController = new LeaveController();
-        $onLeave = $leaveController->onLeave();
-        //$nextWeek = $leaveController->nextWeekVacation();
-        $onVacationMessage = "Currently absent: "."\n";
 
-       foreach($onLeave as $leave) {
-           // add line break at the beginning of each leave
-           $onVacationMessage .= "\n";
-
-           // Employee on leave
-           $onVacationMessage .= $leave->employee->first_name." ";
-           $onVacationMessage .= $leave->employee->last_name." from: ";
-
-           // Leave dates
-           $onVacationMessage .= "*".$leave->vacation_begin."* until: ";
-           $onVacationMessage .= "*".$leave->vacation_end."* ";
-
-           // Substitute 01 info
-           $onVacationMessage .= "\n"."If you have questions please refer to: ";
-           $onVacationMessage .= $leave->substitute01->first_name." ";
-           $onVacationMessage .= $leave->substitute01->last_name.", ";
-
-           // Substitute 02 info
-           $onVacationMessage .= $leave->substitute02->first_name." ";
-           $onVacationMessage .= $leave->substitute02->last_name.", ";
-
-           // Substitute 03 info
-           $onVacationMessage .= $leave->substitute03->first_name." ";
-           $onVacationMessage .= $leave->substitute03->last_name."";
-
-           // add line break at the end of each leave
-           $onVacationMessage .= "\n";
-
+        foreach ($events as $event) {
+            $leaveController->updateLeave($event);
         }
 
-       //echo $onVacationMessage;
+
+
+
+        $onLeave = $leaveController->onLeave();
+        $nextWeek = $leaveController->onLeaveNextWeek();
+
+
+        // ToDo auslagern in Repo / Contract
+        $AbsentMessage = count($nextWeek) > 0 ? "*Absent in the next 7 days:* " . "\n" : '';
+
+        foreach ($nextWeek as $nextLeave) {
+            // add line break at the beginning of each leave
+            $AbsentMessage .= "\n";
+
+            // Employee on leave
+            $AbsentMessage .= $nextLeave->employee->first_name . " ";
+            $AbsentMessage .= $nextLeave->employee->last_name . " from: ";
+
+            // Leave dates
+            $beginDate = Carbon::parse($nextLeave->vacation_begin)->format('M d, Y');
+            $AbsentMessage .= "*" . $beginDate . "* until: ";
+            $endDate = Carbon::parse($nextLeave->vacation_end)->format('M d, Y');
+            $AbsentMessage .= "*" . $endDate . "* ";
+
+            // Substitute 01 info
+            if ($nextLeave->substitute01 != Null) {
+                $AbsentMessage .= "\n" . "If you have questions please refer to: ";
+                $AbsentMessage .= $nextLeave->substitute01->first_name . " ";
+                $AbsentMessage .= $nextLeave->substitute01->last_name;
+            }
+
+            // Substitute 02 info
+            if ($nextLeave->substitute02 != Null) {
+                $AbsentMessage .= ", ";
+                $AbsentMessage .= $nextLeave->substitute02->first_name . " ";
+                $AbsentMessage .= $nextLeave->substitute02->last_name;
+            }
+
+            if ($nextLeave->substitute03 != Null) {
+                $AbsentMessage .= ", ";
+                $AbsentMessage .= $nextLeave->substitute03->first_name . " ";
+                $AbsentMessage .= $nextLeave->substitute03->last_name . " ";
+            }
+
+            // add line break at the end of each leave
+            $AbsentMessage .= "\n";
+        }
+
+        $AbsentMessage .= "\n";
+        if (count($onLeave) > 0) {
+            $AbsentMessage .= "*Currently absent:* " . "\n";
+        }
+
+        foreach ($onLeave as $leave) {
+            // add line break at the beginning of each leave
+            $AbsentMessage .= "\n";
+
+            // Employee on leave
+            $AbsentMessage .= $leave->employee->first_name . " ";
+            $AbsentMessage .= $leave->employee->last_name . " from: ";
+
+            // Leave dates
+            $beginDate = Carbon::parse($leave->vacation_begin)->format('M d, Y');
+            $AbsentMessage .= "*" . $beginDate . "* until: ";
+            $endDate = Carbon::parse($leave->vacation_end)->format('M d, Y');
+            $AbsentMessage .= "*" . $endDate . "* ";
+
+            // Substitute 01 info
+            if ($leave->substitute01 != Null) {
+                $AbsentMessage .= "\n" . "If you have questions please refer to: ";
+                $AbsentMessage .= $leave->substitute01->first_name . " ";
+                $AbsentMessage .= $leave->substitute01->last_name;
+            }
+
+            // Substitute 02 info
+            if ($leave->substitute02 != Null) {
+                $AbsentMessage .= ", ";
+                $AbsentMessage .= $leave->substitute02->first_name . " ";
+                $AbsentMessage .= $leave->substitute02->last_name;
+            }
+
+            if ($leave->substitute03 != Null) {
+                $AbsentMessage .= ", ";
+                $AbsentMessage .= $leave->substitute03->first_name . " ";
+                $AbsentMessage .= $leave->substitute03->last_name . " ";
+            }
+
+            // add line break at the end of each leave
+            $AbsentMessage .= "\n";
+        }
 
         $respone = Http::withHeaders([
             'Content-Type' => 'application/json; charset=UTF-8',
         ])->post(env('WEBHOOK_URL'), [
-            'text' => $onVacationMessage,
+            'text' => $AbsentMessage,
         ]);
-
-        //print_r($respone);
-
-        // need to check first if model is empty
-        //print_r($onVacation[0]->vacation_begin); // getting the attributes from the collection
-        //print_r($onVacation[0]->employee) getting the employee from the other table -> name based on relationship function name;
     }
 }

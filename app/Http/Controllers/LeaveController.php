@@ -8,18 +8,23 @@ use App\Employee;
 use App\Leave;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Ramsey\Collection\Collection;
 
 class LeaveController extends Controller
 {
-    public function updateLeave()
+    public function updateLeave($events)
     {
+
         $employee = Employee::updateOrCreate(
-            ['first_name' => 'Daniel'],
-            ['last_name' => 'Marx']
+            ['first_name' => $events["employee"]["firstname"]],
+            ['last_name' => $events["employee"]["lastname"]]
         );
 
-        $employee->leave()->updateOrCreate(['vacation_id' => 256], ['vacation_begin' => 20200707]);
-
+        $employee->leave()->updateOrCreate(
+            ['vacation_id' => $events["vacationId"]],
+            ['vacation_begin' => $events["leaveStart"],
+                'vacation_end' => $events["leaveEnd"],
+                'leave_type' => $events["employee"]["leavetype"]);
     }
 
     public function onLeave()

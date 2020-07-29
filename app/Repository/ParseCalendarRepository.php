@@ -1,18 +1,26 @@
 <?php
 
 
-namespace App\Leave;
+namespace App\Repository;
+
+use ICal\ICal;
 
 
-class ParseCalendar
+// ToDo handle hourly leave
+// Rework naming for methods / varaibles
+
+class ParseCalendarRepository
 {
 
     private $rawCalendar;
+    private $parsedCalendar;
+    private $filteredCalendar;
     private $wrongLeaveTypes;
 
-    public function __construct($rawCalendar)
+    public function __construct()
     {
-        $this->rawCalendar = $rawCalendar;
+        $this->parsedCalendar = [];
+        $this->filteredCalendar = [];
         $this->wrongLeaveTypes = [
             "Homeoffice",
             "Feiertag",
@@ -22,15 +30,48 @@ class ParseCalendar
         ];
     }
 
-    public function parseCalendar()
+    /**
+     * @return mixed
+     */
+    public function getRawCalendar()
     {
-        $parsedRawData = $this->parseData($this->rawCalendar);
-        return $this->extractEvents($parsedRawData);
+        return $this->rawCalendar;
     }
 
-    private function parseData($icalData)
+    /**
+     * @param mixed $rawCalendar
+     */
+    public function setRawCalendar($rawCalendar): void
     {
-        $ical = new ICal($icalData, array(
+        $this->rawCalendar = $rawCalendar;
+    }
+
+    /**
+     * @return array
+     */
+    public function getParsedCalendar(): array
+    {
+        return $this->parsedCalendar;
+    }
+
+    /**
+     * @param array $parsedCalendar
+     */
+    public function setParsedCalendar(array $parsedCalendar): void
+    {
+        $this->parsedCalendar = $parsedCalendar;
+    }
+
+    public function parsedCalendar()
+    {
+        $this->parseData();
+        $this->extractEvents();
+        return collect($this->filteredCalendar);
+    }
+
+    public function parseData()
+    {
+        $ical = new ICal($this->rawCalendar, array(
             'defaultSpan' => 2,     // Default value
             'defaultTimeZone' => 'UTC',
             'defaultWeekStart' => 'MO',  // Default value
@@ -39,13 +80,13 @@ class ParseCalendar
             'filterDaysBefore' => null,  // Default value
             'skipRecurrence' => false, // Default value
         ));
-        return $ical->events();
+        $this->parsedCalendar = $ical->events();;
     }
 
-    private function extractEvents($events)
+    private function extractEvents()
     {
         $calendarEvents = [];
-        foreach ($events as $event) {
+        foreach ($this->parsedCalendar as $event) {
             $summary = $event->summary;
             $calendarEvents[] = ["employee" => $this->extractEventDetails($summary),
                 "vacationId" => $this->extractUid($event->uid),
@@ -54,7 +95,8 @@ class ParseCalendar
                 "created" => $event->created];
         }
 
-        return array_filter($calendarEvents, array($this, "filterEvents"));
+        $this->filteredCalendar = array_filter($calendarEvents, array($this, "filterEvents"));
+
     }
 
     private function extractEventDetails($inputName)
