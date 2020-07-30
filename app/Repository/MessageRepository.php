@@ -106,28 +106,23 @@ class MessageRepository
             $endDate = Carbon::parse($absence->absence_end)->format('M d, Y');
             $this->message .= "*" . $endDate . "* ";
 
-            // Substitute 01 info
             if ($absence->substitute01 != Null) {
                 $this->message .= "\n" . "If you have questions please refer to: ";
-                $this->message .= $absence->substitute01->first_name . " ";
-                $this->message .= $absence->substitute01->last_name;
+                $this->subInfo($absence->substitute01);
+                if ($absence->substitute02 != Null) {
+                    $this->subInfo($absence->substitute02);
+                    if ($absence->substitute03 != Null) {
+                        $this->subInfo($absence->substitute01);
+                    }
+                }
             }
-
-            // Substitute 02 info
-            if ($absence->substitute02 != Null) {
-                $this->message .= ", ";
-                $this->message .= $absence->substitute02->first_name . " ";
-                $this->message .= $absence->substitute02->last_name . ", ";;
-            }
-
-            if ($absence->substitute03 != Null) {
-                $this->message .= ", ";
-                $this->message .= $absence->substitute03->first_name . " ";
-                $this->message .= $absence->substitute03->last_name . ", ";;
-            }
-
             $this->message .= "\n";
         }
+    }
+
+    private function subInfo($substitute) {
+        $this->message .= $substitute->first_name . " ";
+        $this->message .= $substitute->last_name. " ";
     }
 
     public function send()
