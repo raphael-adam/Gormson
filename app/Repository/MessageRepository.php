@@ -11,7 +11,7 @@ class MessageRepository
 
     private $onVacation;
     private $nextWeek;
-    private $leave;
+    private $absence;
     private $currentlyAbsent;
     private $nextAbsent;
     private $message;
@@ -81,12 +81,12 @@ class MessageRepository
     private function construct()
     {
         $this->message = count($this->nextWeek) > 0 ? "*Absent in the next 7 days:* " . "\n" : '';
-        $this->leave = $this->nextWeek;
+        $this->absence = $this->nextWeek;
         $this->messageBody();
         $this->currentlyAbsent = $this->message;
 
         $this->message = count($this->onVacation) > 0 ? "\n"."*Currently absent* " . "\n" : '';
-        $this->leave = $this->onVacation;
+        $this->absence = $this->onVacation;
         $this->messageBody();
         $this->nextAbsent = $this->message;
 
@@ -95,15 +95,15 @@ class MessageRepository
 
     private function messageBody()
     {
-        foreach ($this->leave as $absence) {
-            // Employee on leave
+        foreach ($this->absence as $absence) {
+            // Employee on absence
             $this->message .= $absence->employee->first_name . " ";
             $this->message .= $absence->employee->last_name . " from: ";
 
-            // Leave dates
-            $beginDate = Carbon::parse($absence->vacation_begin)->format('M d, Y');
+            // absence dates
+            $beginDate = Carbon::parse($absence->absence_begin)->format('M d, Y');
             $this->message .= "*" . $beginDate . "* until: ";
-            $endDate = Carbon::parse($absence->vacation_end)->format('M d, Y');
+            $endDate = Carbon::parse($absence->absence_end)->format('M d, Y');
             $this->message .= "*" . $endDate . "* ";
 
             // Substitute 01 info

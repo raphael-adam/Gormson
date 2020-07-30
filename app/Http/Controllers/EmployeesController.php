@@ -10,7 +10,7 @@ class EmployeesController extends Controller
     public function store($events)
     {
         return Employee::updateOrCreate(
-        ['first_name' => $events["employee"]["firstname"], 'last_name' => $events["employee"]["lastname"]]
+        ['first_name' => $events["employee"]["first_name"], 'last_name' => $events["employee"]["last_name"]]
     );
     }
 }

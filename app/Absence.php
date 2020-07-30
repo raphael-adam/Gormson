@@ -4,18 +4,20 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Leave extends Model
+class Absence extends Model
 {
     protected $fillable = [
         "employee_id",
-        "vacation_id",
-        "vacation_begin",
-        "vacation_end",
-        "leave_type",
-        "substitute01_id",
-        "substitute02_id",
-        "substitute03_id",
+        "absence_id",
+        "absence_begin",
+        "absence_end",
+        "absence_type",
+        "substitute_01_id",
+        "substitute_02_id",
+        "substitute_03_id",
     ];
+
+    public $table = "absence";
 
     public function employee() {
         return $this->hasOne(Employee::class, "id","employee_id");

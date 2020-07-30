@@ -15,13 +15,13 @@ class ParseCalendarRepository
     private $rawCalendar;
     private $parsedCalendar;
     private $filteredCalendar;
-    private $wrongLeaveTypes;
+    private $wrongAbsenceTypes;
 
     public function __construct()
     {
         $this->parsedCalendar = [];
         $this->filteredCalendar = [];
-        $this->wrongLeaveTypes = [
+        $this->wrongAbsenceTypes = [
             "Homeoffice",
             "Feiertag",
             "Einheit",
@@ -89,9 +89,9 @@ class ParseCalendarRepository
         foreach ($this->parsedCalendar as $event) {
             $summary = $event->summary;
             $calendarEvents[] = ["employee" => $this->extractEventDetails($summary),
-                "vacationId" => $this->extractUid($event->uid),
-                "leaveStart" => $event->dtstart,
-                "leaveEnd" => $event->dtend,
+                "absence_id" => $this->extractUid($event->uid),
+                "absence_begin" => $event->dtstart,
+                "absence_end" => $event->dtend,
                 "created" => $event->created];
         }
 
@@ -105,9 +105,9 @@ class ParseCalendarRepository
         $parts = explode(' ', $inputName);
 
         if (array_key_exists(3, $parts)) {
-            $results = ["firstname" => $parts[0],
-                "lastname" => $parts[1],
-                "leavetype" => $parts[3],
+            $results = ["first_name" => $parts[0],
+                "last_name" => $parts[1],
+                "absence_type" => $parts[3],
                 "substitutes" => $this->extractSubstitutes($parts)];
         }
         return $results;
@@ -125,21 +125,21 @@ class ParseCalendarRepository
         $substitutes = [];
         if (array_key_exists(6, $parts)) {
             if ($parts[6] == 'Vertretung:') {
-                $substitutes["firstname01"] = $parts[7];
-                $substitutes["lastname01"] = $parts[8];
+                $substitutes["first_name_01"] = $parts[7];
+                $substitutes["last_name_01"] = $parts[8];
             }
         }
         if (array_key_exists(9, $parts)) {
             if ($parts[9] == '+') {
-                $results["firstname02"] = $parts[10];
-                $results["lastname02"] = $parts[11];
+                $results["first_name_02"] = $parts[10];
+                $results["last_name_02"] = $parts[11];
             }
         }
 
         if (array_key_exists(12, $parts)) {
             if ($parts[12] == '+') {
-                $results["firstname03"] = $parts[13];
-                $results["lastname03"] = $parts[14];
+                $results["first_name_03"] = $parts[13];
+                $results["last_name_03"] = $parts[14];
             }
         }
         return $substitutes;
@@ -147,8 +147,8 @@ class ParseCalendarRepository
 
     private function filterEvents($events)
     {
-        if (isset($events["employee"]["leavetype"])) {
-            return !in_array($events["employee"]["leavetype"], $this->wrongLeaveTypes);
+        if (isset($events["employee"]["absence_type"])) {
+            return !in_array($events["employee"]["absence_type"], $this->wrongAbsenceTypes);
         }
         return false;
     }
