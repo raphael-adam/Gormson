@@ -126,7 +126,7 @@ class ParseCalendarRepository
         if (array_key_exists(6, $parts)) {
             if ($parts[6] == 'Vertretung:') {
                 $substitutes["firstname01"] = $parts[7];
-                $substitutes["lasttname01"] = $parts[8];
+                $substitutes["lastname01"] = $parts[8];
             }
         }
         if (array_key_exists(9, $parts)) {

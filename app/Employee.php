@@ -12,10 +12,8 @@ class Employee extends Model
         "last_name",
     ];
 
-
-    public function leave()
-    {
-        return $this->hasMany('App\Leave');
+    public function leave() {
+        return $this->hasMany(Employee::class, "id","employee_id");
     }
 
 
