@@ -54,6 +54,9 @@ class MessageCommand extends Command
 
         foreach ($events as $event) {
             $employeesController->store($event);
+        }
+
+        foreach ($events as $event) {
             $absenceController->store($event);
         }
 
