@@ -126,23 +126,17 @@ class ParseCalendarRepository
         $substitutes = [];
         if (array_key_exists(6, $parts)) {
             if ($parts[6] == 'Vertretung:') {
-                $substitutes["first_name_01"] = $parts[7];
-                $substitutes["last_name_01"] = $parts[8];
+                $index = 7;
+                while ($index < count($parts)) {
+                    $substitutes = [
+                        $parts[$index],
+                        $parts[$index++],
+                    ];
+                $index++;
+            }
             }
         }
-        if (array_key_exists(9, $parts)) {
-            if ($parts[9] == '+') {
-                $results["first_name_02"] = $parts[10];
-                $results["last_name_02"] = $parts[11];
-            }
-        }
-
-        if (array_key_exists(12, $parts)) {
-            if ($parts[12] == '+') {
-                $results["first_name_03"] = $parts[13];
-                $results["last_name_03"] = $parts[14];
-            }
-        }
+        print_r($substitutes);
         return $substitutes;
     }
 
