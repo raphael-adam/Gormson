@@ -25,6 +25,7 @@ class ParseCalendarRepository
             "Homeoffice",
             "Feiertag",
             "Einheit",
+            'Arztbesuch',
             "Tag)",
             "-",
         ];
@@ -69,7 +70,7 @@ class ParseCalendarRepository
         return collect($this->filteredCalendar);
     }
 
-    public function parseData()
+    private function parseData()
     {
         $ical = new ICal($this->rawCalendar, array(
             'defaultSpan' => 2,     // Default value

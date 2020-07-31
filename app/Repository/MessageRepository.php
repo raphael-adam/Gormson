@@ -90,7 +90,7 @@ class MessageRepository
         $this->messageBody();
         $this->nextAbsent = $this->message;
 
-        $this->message = $this->currentlyAbsent.$this->nextAbsent;
+        $this->message = $this->nextAbsent.$this->currentlyAbsent;
     }
 
     private function messageBody()

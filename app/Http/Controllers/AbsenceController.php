@@ -10,26 +10,25 @@ class AbsenceController extends Controller
 {
     public function store($events)
     {
-
         Absence::updateOrCreate([
             'absence_id' => $events["absence_id"],
             'absence_begin' => $events["absence_begin"],
             'absence_end' => $events["absence_end"]],
-            [
-                'employee_id' => $this->findEmployee($events["employee"]),
-                'substitute_01_id' => $this->findSubstitute01($events["employee"]["substitutes"]),
-                'substitute_02_id' => $this->findSubstitute02($events["employee"]["substitutes"]),
-                'substitute_03_id' => $this->findSubstitute03($events["employee"]["substitutes"]),
-                'absence_type' => $events["employee"]["absence_type"]]
-        );
+            ['employee_id' => $this->findEmployee($events["employee"]),
+            'substitute_01_id' => $this->findSubstitute01($events["employee"]["substitutes"]),
+            'substitute_02_id' => $this->findSubstitute02($events["employee"]["substitutes"]),
+            'substitute_03_id' => $this->findSubstitute03($events["employee"]["substitutes"]),
+            'absence_type' => $events["employee"]["absence_type"]
+        ]);
     }
 
+    // ToDo zu employee repo
     private function findEmployee($event)
     {
         $employee = Employee::where('last_name', $event["last_name"])
             ->where('first_name', $event["first_name"])
-            ->get();
-        return $employee[0]->id;
+            ->firstOrFail();
+        return $employee->id;
     }
 
     private function findSubstitute01($event)
@@ -69,8 +68,8 @@ class AbsenceController extends Controller
     public function onAbsence()
     {
         $today = Carbon::now();
-        return Absence::where('absence_begin', 'lt', $today)
-            ->where('absence_end', 'gt', $today)
+        return Absence::where('absence_begin', '<=', $today)
+            ->where('absence_end', '>=', $today)
             ->get();
     }
 

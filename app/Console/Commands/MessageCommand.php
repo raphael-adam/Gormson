@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\absenceController;
+use App\Facade\IcsData;
 use App\Http\Controllers\EmployeesController;
+use App\Http\Controllers\AbsenceController;
 use App\Repository\IcsDataRepository;
 use App\Repository\MessageRepository;
 use App\Repository\ParseCalendarRepository;
@@ -42,8 +43,7 @@ class MessageCommand extends Command
      */
     public function handle()
     {
-        $calendarData = new IcsDataRepository();
-        $rawData = $calendarData->get();
+        $rawData = IcsData::get();
 
         $calendarParser = new ParseCalendarRepository();
         $calendarParser->setRawCalendar($rawData);
@@ -60,10 +60,10 @@ class MessageCommand extends Command
             $absenceController->store($event);
         }
 
-        $onAbsence = $absenceController->onAbsence();
+        $currentlyAbsent = $absenceController->onAbsence();
         $nextWeek = $absenceController->onAbsenceNextWeek();
 
-        $message = new MessageRepository($onAbsence, $nextWeek);
+        $message = new MessageRepository($currentlyAbsent, $nextWeek); // Contract
         $message->send();
     }
 }

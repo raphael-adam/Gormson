@@ -19,8 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bind(IcsDataRepositoryContract::class, IcsDataRepository::class);
-        $this->app->bind(ParseCalendarContract::class, ParseCalendarRepository::class);
+        $this->app->bind('IcsData', IcsDataRepository::class); // ToDo rename to service
+
+        $this->app->bind('ParseCalendar', ParseCalendarRepository::class); // ToDo rename to service
+
     }
 
     /**

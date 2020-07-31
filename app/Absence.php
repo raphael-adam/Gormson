@@ -24,15 +24,15 @@ class Absence extends Model
     }
 
     public function substitute01() {
-        return $this->hasOne(Employee::class, "id","substitute01_id");
+        return $this->hasOne(Employee::class, "id","substitute_01_id");
     }
 
     public function substitute02() {
-        return $this->hasOne(Employee::class, "id","substitute02_id");
+        return $this->hasOne(Employee::class, "id","substitute_02_id");
     }
 
     public function substitute03() {
-        return $this->hasOne(Employee::class, "id","substitute03_id");
+        return $this->hasOne(Employee::class, "id","substitute_03_id");
     }
 
 }
