@@ -1,19 +1,16 @@
 <?php
 
 
-namespace App\Repository;
+namespace App\Service;
 
 use App\Contracts\ParseCalendarContract;
 use ICal\ICal;
 
 
 // ToDo handle hourly leave
-
 class ParseCalendar implements ParseCalendarContract
 {
 
-
-    // ToDo move arrays to constructor
     private $rawCalendar;
     private $parsedCalendar;
     private $filteredCalendar;
@@ -25,11 +22,17 @@ class ParseCalendar implements ParseCalendarContract
 
     public function __construct()
     {
+
         $this->parsedCalendar = [];
         $this->filteredCalendar = [];
         $this->wrongAbsenceTypes = [
             "Homeoffice",
             "Feiertag",
+            'Arbeitsfeier',
+            'Deutschen',
+            'Arbeit',
+            '(halber',
+            'Tag)',
             "Einheit",
             'Arztbesuch',
             "Vertretung:",
@@ -86,10 +89,6 @@ class ParseCalendar implements ParseCalendarContract
             ));
     }
 
-    /**
-     * @param mixed $rawCalendar
-     */
-
 
     public function parsedCalendar($raw)
     {
@@ -116,10 +115,10 @@ class ParseCalendar implements ParseCalendarContract
 
     private function extractEvents()
     {
-        $eventsFiltered = array_filter($this->parsedCalendar, array($this, 'filterSummary'));
+        $eventsFiltered = array_filter($this->parsedCalendar, array($this, 'filterSummary')); // ToDo refactor to if statement
         foreach ($eventsFiltered as $event) {
             $summary = $event->summary;
-            $this->calendarEvents[] = ["employee" => $this->extractEventDetails($summary),
+            $this->calendarEvents[] = ['employee' => $this->extractEventDetails($summary),
                 "absence_id" => $this->extractUid($event->uid),
                 "absence_begin" => $event->dtstart,
                 "absence_end" => $event->dtend,
@@ -135,10 +134,9 @@ class ParseCalendar implements ParseCalendarContract
         if (array_key_exists(3, $partsFiltered)) {
             $this->results = ["first_name" => $partsFiltered[0],
                 "last_name" => $partsFiltered[1],
-                "absence_type" => $partsFiltered[3],
+                "absence_type" => $partsFiltered[2],
                 "substitutes" => $this->extractSubstitutes($partsFiltered)];
         }
-        //print_r($this->results);
         return $this->results;
     }
 
@@ -194,7 +192,7 @@ class ParseCalendar implements ParseCalendarContract
 
     private function filterSummary($event)
     {
-        if (strpos($event->summary, 'Homeoffice') > 0) {
+        if (strpos($event->summary, 'Homeoffice') > 0)  {
             return false;
         }
         return true;
@@ -202,7 +200,7 @@ class ParseCalendar implements ParseCalendarContract
 
     private function splitString($inputString)
     {
-        // seperate the id from the 'urlaub'
+        // seperate the id from 'urlaub'
         $parts = preg_split("/(,?\s+)|((?<=[a-z])(?=\d))|((?<=\d)(?=[a-z]))/i", $inputString);
         return intval($parts[1]);
     }

@@ -1,8 +1,7 @@
 <?php
 
 
-namespace App\Repository;
-
+namespace App\Service;
 
 use Illuminate\Support\Facades\Http;
 

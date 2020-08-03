@@ -3,47 +3,40 @@
 
 namespace App\Service;
 
+use App\Contracts\MessageServiceContract;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
-class MessageRepository
+class MessageService implements MessageServiceContract
 {
 
-    private $onVacation;
+    private $currentlyAbsent;
     private $nextWeek;
     private $absence;
-    private $currentlyAbsent;
+    private $absentNow;
     private $nextAbsent;
     private $message;
-    private $response;
 
-    /**
-     * MessageRepository constructor.
-     * @param $onVacation
-     * @param $nextWeek
-     * @param $message
-     * @param $response
-     */
     public function __construct()
     {
-        $this->onVacation;
+        $this->currentlyAbsent;
         $this->nextWeek;
     }
 
     /**
      * @return mixed
      */
-    public function getOnVacation()
+    public function getCurrentlyAbsent()
     {
-        return $this->onVacation;
+        return $this->currentlyAbsent;
     }
 
     /**
-     * @param mixed $onVacation
+     * @param mixed $currentlyAbsent
      */
-    public function setOnVacation($onVacation): void
+    public function setCurrentlyAbsent($currentlyAbsent): void
     {
-        $this->onVacation = $onVacation;
+        $this->currentlyAbsent = $currentlyAbsent;
     }
 
     /**
@@ -83,14 +76,14 @@ class MessageRepository
         $this->message = count($this->nextWeek) > 0 ? "*Absent in the next 7 days:* " . "\n" : '';
         $this->absence = $this->nextWeek;
         $this->messageBody();
-        $this->currentlyAbsent = $this->message;
+        $this->absentNow = $this->message;
 
-        $this->message = count($this->onVacation) > 0 ? "\n"."*Currently absent* " . "\n" : '';
-        $this->absence = $this->onVacation;
+        $this->message = count($this->currentlyAbsent) > 0 ? "\n"."*Currently absent* " . "\n" : '';
+        $this->absence = $this->currentlyAbsent;
         $this->messageBody();
         $this->nextAbsent = $this->message;
 
-        $this->message = $this->nextAbsent.$this->currentlyAbsent;
+        $this->message = $this->nextAbsent."\n".$this->absentNow;
     }
 
     private function messageBody()

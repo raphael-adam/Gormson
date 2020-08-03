@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Contracts\ParseCalendarContract;
 use App\Facade\IcsData;
 use App\Http\Controllers\EmployeesController;
-use App\Http\Controllers\AbsenceController;
-use App\Repository\IcsDataRepository;
-use App\Repository\MessageRepository;
-use App\Repository\ParseCalendarRepository;
+use App\Repository\AbsenceRepositoryInterface;
+use App\Service\MessageService;
+use App\Contracts\MessageServiceContract;
 use Illuminate\Console\Command;
 
 class MessageCommand extends Command
@@ -44,26 +44,20 @@ class MessageCommand extends Command
     public function handle()
     {
         $rawData = IcsData::get();
+        $calender = app(ParseCalendarContract::class);
+        $events = $calender->parsedCalendar($rawData);
 
-        $calendarParser = new ParseCalendarRepository();
-        $calendarParser->setRawCalendar($rawData);
-        $events = $calendarParser->parsedCalendar();
-
-        $employeesController = new EmployeesController();
-        $absenceController = new absenceController();
-
+        $absenceRepository = app(AbsenceRepositoryInterface::class);
         foreach ($events as $event) {
-            $employeesController->store($event);
+            $absenceRepository->create($event);
         }
 
-        foreach ($events as $event) {
-            $absenceController->store($event);
-        }
+        $currentlyAbsent = $absenceRepository->currentlyAbsent();
+        $nextWeek = $absenceRepository->absentNextWeek();
 
-        $currentlyAbsent = $absenceController->onAbsence();
-        $nextWeek = $absenceController->onAbsenceNextWeek();
-
-        $message = new MessageRepository($currentlyAbsent, $nextWeek); // Contract
+        $message = app(MessageServiceContract::class);
+        $message->setCurrentlyAbsent($currentlyAbsent);
+        $message->setNextWeek($nextWeek);
         $message->send();
     }
 }

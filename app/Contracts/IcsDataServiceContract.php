@@ -4,7 +4,7 @@
 namespace App\Contracts;
 
 
-interface IcsDataRepositoryContract
+interface IcsDataServiceContract
 {
 
     public function get();

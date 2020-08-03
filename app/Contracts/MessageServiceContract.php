@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Service;
+namespace App\Contracts;
 
 interface MessageServiceContract
 {
     /**
      * @return mixed
      */
-    public function getOnVacation();
+    public function getCurrentlyAbsent();
 
     /**
-     * @param mixed $onVacation
+     * @param mixed $currentlyAbsent
      */
-    public function setOnVacation($onVacation): void;
+    public function setCurrentlyAbsent($currentlyAbsent): void;
 
     /**
      * @return mixed

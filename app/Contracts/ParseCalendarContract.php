@@ -5,15 +5,13 @@ namespace App\Contracts;
 
 interface ParseCalendarContract
 {
-
-    public function parseCalendar();
-
-    public function getParsedCalendar();
-    public function setParsedCalendar();
-
-    public function getRawCalendar();
-    public function setRawCalendar();
-
-
+    /**
+     * Parse and filter the calendar
+     *
+     * @param  string  $command
+     * @param  string  $raw
+     * @return array
+     */
+    public function parsedCalendar($raw);
 
 }
