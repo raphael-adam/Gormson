@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Repository;
+namespace App\Service;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -24,10 +24,10 @@ class MessageRepository
      * @param $message
      * @param $response
      */
-    public function __construct($onVacation, $nextWeek)
+    public function __construct()
     {
-        $this->onVacation = $onVacation;
-        $this->nextWeek = $nextWeek;
+        $this->onVacation;
+        $this->nextWeek;
     }
 
     /**

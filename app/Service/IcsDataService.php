@@ -6,7 +6,7 @@ namespace App\Repository;
 
 use Illuminate\Support\Facades\Http;
 
-class IcsDataRepository
+class IcsDataService
 {
     private $url;
 
