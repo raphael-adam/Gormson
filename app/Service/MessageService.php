@@ -95,9 +95,11 @@ class MessageService implements MessageServiceContract
 
             // absence dates
             $beginDate = Carbon::parse($absence->absence_begin)->format('M d, Y');
-            $this->message .= "*" . $beginDate . "* until: ";
             $endDate = Carbon::parse($absence->absence_end)->format('M d, Y');
-            $this->message .= "*" . $endDate . "* ";
+            $this->message .= "*$beginDate* until: $endDate ";
+            if($absence['absence_type'] == 'Half a day') {
+                $this->message .= "for half day";
+            };
 
             if ($absence->substitute01 != Null) {
                 $this->message .= "\n" . "If you have questions please refer to: ";
@@ -114,8 +116,8 @@ class MessageService implements MessageServiceContract
     }
 
     private function subInfo($substitute) {
-        $this->message .= $substitute->first_name . " ";
-        $this->message .= $substitute->last_name. " ";
+        $this->message .= "$substitute->first_name " ;
+        $this->message .= "$substitute->last_name. ";
     }
 
     public function send()
