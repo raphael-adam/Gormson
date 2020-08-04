@@ -28,7 +28,7 @@ class AbsenceRepository implements AbsenceRepositoryInterface
     {
         Absence::updateOrCreate([
             'absence_id' => $absence["absence_id"]],
-            [ 'employee_id' => $this->getByName($absence['employee']),
+            ['employee_id' => $this->getByName($absence['employee']),
                 'substitute_01_id' => $this->getByName($absence['employee']['substitutes'][0]),
                 'substitute_02_id' => $this->getByName($absence['employee']['substitutes'][1]),
                 'substitute_03_id' => $this->getByName($absence['employee']['substitutes'][2]),
@@ -36,6 +36,31 @@ class AbsenceRepository implements AbsenceRepositoryInterface
                 'absence_end' => $absence["absence_end"],
                 'absence_type' => $absence["employee"]["absence_type"],
             ]);
+    }
+
+
+    public function deleteObsolete($events)
+    {
+        $databaseIds = [];
+        $eventIds = [];
+        $absent = Absence::all();
+
+        foreach ($absent as $absence) {
+            $databaseIds[] = $absence['absence_id'];
+        }
+        foreach ($events as $event) {
+            $eventIds[] = $event['absence_id'];
+        }
+        $differentIds = array_diff($databaseIds, $eventIds);
+        Absence::whereIn('absence_id', $differentIds)->delete();
+
+    }
+
+    private function filterFutureEvents($event)
+    {
+        $today = Carbon::now();
+        $date = strtotime($event['absence_begin']);
+        return $date < $today->toDateTimeString();
     }
 
     public function getByName($employee)

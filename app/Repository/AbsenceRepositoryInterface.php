@@ -17,6 +17,8 @@ interface AbsenceRepositoryInterface
 
     public function create($absence);
 
+    public function deleteObsolete($events);
+
     public function delete($id);
 
 
