@@ -41,26 +41,11 @@ class AbsenceRepository implements AbsenceRepositoryInterface
 
     public function deleteObsolete($events)
     {
-        $databaseIds = [];
-        $eventIds = [];
         $absent = Absence::all();
-
-        foreach ($absent as $absence) {
-            $databaseIds[] = $absence['absence_id'];
-        }
-        foreach ($events as $event) {
-            $eventIds[] = $event['absence_id'];
-        }
+        $databaseIds = $this->ids($absent);
+        $eventIds = $this->ids($events);
         $differentIds = array_diff($databaseIds, $eventIds);
         Absence::whereIn('absence_id', $differentIds)->delete();
-
-    }
-
-    private function filterFutureEvents($event)
-    {
-        $today = Carbon::now();
-        $date = strtotime($event['absence_begin']);
-        return $date < $today->toDateTimeString();
     }
 
     public function getByName($employee)
@@ -91,6 +76,15 @@ class AbsenceRepository implements AbsenceRepositoryInterface
     public function delete($id)
     {
         $this->model->getById()->delete($id);
+    }
+
+    private function ids($array)
+    {
+        $ids = [];
+        foreach ($array as $item) {
+            $ids[] = $item['absence_id'];
+        }
+        return $ids;
     }
 
 }
