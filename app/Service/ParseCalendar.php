@@ -115,7 +115,7 @@ class ParseCalendar implements ParseCalendarContract
 
     private function extractEvents()
     {
-        $eventsFiltered = array_filter($this->parsedCalendar, array($this, 'filterSummary')); // ToDo refactor to if statement
+        $eventsFiltered = array_filter($this->parsedCalendar, array($this, 'filterSummary'));
         foreach ($eventsFiltered as $event) {
             $summary = $event->summary;
             $this->calendarEvents[] = ['employee' => $this->extractEventDetails($summary),
@@ -166,12 +166,12 @@ class ParseCalendar implements ParseCalendarContract
         for ($j = 0; $j < count($parts); $j++) {
             if ($parts[$j] == 'Vertretung:') {
                 $i = 0;
-                for ($k = $j + 1; $k < count($parts) - 1; $k++) {
+                for ($k = $j + 1; $k < count($parts) - 1; $k += 2) {
                     $substitutes[$i]['first_name'] = $parts[$k];
                     $substitutes[$i]['last_name'] = $parts[$k + 1] . "\n";
                     $i++;
-                    $k++;
                 }
+                break;
             }
         }
         return $substitutes;

@@ -6,6 +6,7 @@ use App\Employee;
 use App\Repository\AbsenceRepositoryInterface;
 use App\Absence;
 use Carbon\Carbon;
+use Ramsey\Uuid\Type\Integer;
 use function GuzzleHttp\Promise\all;
 
 class AbsenceRepository implements AbsenceRepositoryInterface
@@ -25,10 +26,9 @@ class AbsenceRepository implements AbsenceRepositoryInterface
 
     public function create($absence)
     {
-        print_r($absence);
         Absence::updateOrCreate([
             'absence_id' => $absence["absence_id"]],
-            ['employee_id' => $this->getByName($absence['employee']),
+            [ 'employee_id' => $this->getByName($absence['employee']),
                 'substitute_01_id' => $this->getByName($absence['employee']['substitutes'][0]),
                 'substitute_02_id' => $this->getByName($absence['employee']['substitutes'][1]),
                 'substitute_03_id' => $this->getByName($absence['employee']['substitutes'][2]),
@@ -40,13 +40,9 @@ class AbsenceRepository implements AbsenceRepositoryInterface
 
     public function getByName($employee)
     {
-        if ($employee['first_name'] == 'first_name') {
-            return Null;
-        } else {
-            return Employee::where('last_name', $employee['last_name'])
-                ->where('first_name', $employee['first_name'])
-                ->value('id');
-        }
+        return Employee::where('last_name', $employee['last_name'])
+            ->where('first_name', $employee['first_name'])
+            ->value('id');
     }
 
     public function currentlyAbsent()
@@ -66,7 +62,6 @@ class AbsenceRepository implements AbsenceRepositoryInterface
             ->where('absence_begin', '<=', $nextWeek)
             ->get();
     }
-
 
     public function delete($id)
     {

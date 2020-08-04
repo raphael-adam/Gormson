@@ -4,9 +4,7 @@ namespace App\Console\Commands;
 
 use App\Contracts\ParseCalendarContract;
 use App\Facade\IcsData;
-use App\Http\Controllers\EmployeesController;
 use App\Repository\AbsenceRepositoryInterface;
-use App\Service\MessageService;
 use App\Contracts\MessageServiceContract;
 use Illuminate\Console\Command;
 
@@ -38,7 +36,6 @@ class MessageCommand extends Command
 
     /**
      * Execute the console command.
-     *
      * @return int
      */
     public function handle()
