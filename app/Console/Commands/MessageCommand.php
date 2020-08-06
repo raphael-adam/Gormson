@@ -43,19 +43,19 @@ class MessageCommand extends Command
         $rawData = IcsData::get();
         $calender = app(ParseCalendarContract::class);
         $events = $calender->parsedCalendar($rawData);
-
+ 
        $absenceRepository = app(AbsenceRepositoryInterface::class);
-       $absenceRepository->deleteObsolete($events);
-       foreach ($events as $event) {
+        $absenceRepository->deleteObsolete($events);
+        foreach ($events as $event) {
             $absenceRepository->create($event);
         }
 
         $currentlyAbsent = $absenceRepository->currentlyAbsent();
         $nextWeek = $absenceRepository->absentNextWeek();
 
-       /* $message = app(MessageServiceContract::class);
+        $message = app(MessageServiceContract::class);
         $message->setCurrentlyAbsent($currentlyAbsent);
         $message->setNextWeek($nextWeek);
-        $message->send();*/
+        $message->send();
     }
 }

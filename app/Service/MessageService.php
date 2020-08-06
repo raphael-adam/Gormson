@@ -91,18 +91,27 @@ class MessageService implements MessageServiceContract
         foreach ($this->absence as $absence) {
             // Employee on absence
             $this->message .= $absence->employee->first_name . " ";
-            $this->message .= $absence->employee->last_name . " from: ";
+            $this->message .= $absence->employee->last_name." from: ";
 
             // absence dates
-            $beginDate = Carbon::parse($absence->absence_begin)->format('M d, Y');
-            $endDate = Carbon::parse($absence->absence_end)->format('M d, Y');
-            $this->message .= "*$beginDate* until: $endDate ";
+            $tomorrow = Carbon::now()->addDay();
+            $format = 'd D, M, Y';
+            $endDate = Carbon::parse($absence->absence_end)->format($format);
+            if($absence->absence_begin == $tomorrow) {
+                $beginDate = 'Tomorrow';
+            } else {
+                $beginDate = Carbon::parse($absence->absence_begin)->format($format);
+            }
+
+
             if($absence['absence_type'] == 'Half a day') {
-                $this->message .= "for half day";
-            };
+                $this->message .= "*$beginDate* for half a day";
+            } else {
+                $this->message .= "*$beginDate* until: *$endDate* ";
+            }
 
             if ($absence->substitute01 != Null) {
-                $this->message .= "\n" . "If you have questions please refer to: ";
+                $this->message .= "\n" . "Please refer to: ";
                 $this->subInfo($absence->substitute01);
                 if ($absence->substitute02 != Null) {
                     $this->subInfo($absence->substitute02);
@@ -110,14 +119,15 @@ class MessageService implements MessageServiceContract
                         $this->subInfo($absence->substitute01);
                     }
                 }
+                $this->message .= "\n";
             }
             $this->message .= "\n";
         }
     }
 
     private function subInfo($substitute) {
-        $this->message .= "$substitute->first_name " ;
-        $this->message .= "$substitute->last_name. ";
+        $this->message .= ", $substitute->first_name " ;
+        $this->message .= "$substitute->last_name";
     }
 
     public function send()

@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Contracts\ParseCalendarContract;
 use ICal\ICal;
+use function Psy\debug;
 
 
 // ToDo handle hourly leave
@@ -13,6 +14,7 @@ class ParseCalendar implements ParseCalendarContract
 
     private $rawCalendar;
     private $parsedCalendar;
+    private $summaryFilter;
     private $filteredCalendar;
     private $results;
     private $wrongTokens;
@@ -36,6 +38,13 @@ class ParseCalendar implements ParseCalendarContract
             "Einheit",
             'Arztbesuch',
             "Vertretung:",
+        ];
+
+        $this->summaryFilter = [
+            'Homeoffice',
+            'Feiertag',
+            'Arbeitsfeier',
+            'Arbeit',
         ];
 
         $this->wrongTokens = [
@@ -129,15 +138,19 @@ class ParseCalendar implements ParseCalendarContract
 
     private function extractEventDetails($inputName)
     {
-        $parts = explode(' ', $inputName);
-        $partsFiltered = array_values(array_filter($parts, array($this, 'filterParts')));
-        if (array_key_exists(3, $partsFiltered)) {
-            $this->results = ["first_name" => $partsFiltered[0],
-                "last_name" => $partsFiltered[1],
-                "absence_type" => $partsFiltered[2],
-                "substitutes" => $this->extractSubstitutes($partsFiltered)];
+        $parts = $this->getParts($inputName);
+        if (array_key_exists(3, $parts)) {
+            $this->results = ["first_name" => $parts[0],
+                "last_name" => $parts[1],
+                "absence_type" => $this->extractLeaveType($parts),
+                "substitutes" => $this->extractSubstitutes($parts)];
         }
         return $this->results;
+    }
+
+    private function extractLeaveType($leaveTypeInput)
+    {
+        return $leaveTypeInput[3] == '(0,5' ? 'Half a day' : $leaveTypeInput[2];
     }
 
     private function extractUid($uidInput)
@@ -171,11 +184,16 @@ class ParseCalendar implements ParseCalendarContract
                     $substitutes[$i]['last_name'] = $parts[$k + 1] . "\n";
                     $i++;
                 }
-                break;
             }
         }
         return $substitutes;
     }
+
+    private function mapSubstitutes($substitute)
+    {
+        return [$substitute];
+    }
+
 
     private function filterEvents($events)
     {
@@ -190,11 +208,19 @@ class ParseCalendar implements ParseCalendarContract
         return !in_array($part, $this->wrongTokens);
     }
 
+    private function getParts($inputName) {
+        $parts = explode(' ', $inputName);
+        return array_values(array_filter($parts, array($this, 'filterParts')));
+    }
+
     private function filterSummary($event)
     {
-        if (strpos($event->summary, 'Homeoffice') > 0)  {
-            return false;
+        foreach ($this->summaryFilter as $types) {
+            if (strpos($event->summary, $types) > 0) {
+                return false;
+            }
         }
+
         return true;
     }
 
