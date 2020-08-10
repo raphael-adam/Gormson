@@ -13,7 +13,9 @@ interface AbsenceRepositoryInterface
 
     public function currentlyAbsent();
 
-    public function absentNextWeek();
+    public function absentInDayRange($start, $end);
+
+    public function absenceUpdated();
 
     public function create($absence);
 

@@ -189,11 +189,6 @@ class ParseCalendar implements ParseCalendarContract
         return $substitutes;
     }
 
-    private function mapSubstitutes($substitute)
-    {
-        return [$substitute];
-    }
-
 
     private function filterEvents($events)
     {
@@ -208,7 +203,8 @@ class ParseCalendar implements ParseCalendarContract
         return !in_array($part, $this->wrongTokens);
     }
 
-    private function getParts($inputName) {
+    private function getParts($inputName)
+    {
         $parts = explode(' ', $inputName);
         return array_values(array_filter($parts, array($this, 'filterParts')));
     }

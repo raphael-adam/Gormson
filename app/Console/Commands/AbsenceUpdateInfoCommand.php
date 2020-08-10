@@ -1,26 +1,26 @@
 <?php
 
 namespace App\Console\Commands;
-use App\Contracts\ParseCalendarContract;
-use App\Facade\IcsData;
+
+use App\Contracts\MessageServiceContract;
 use App\Repository\AbsenceRepositoryInterface;
 use Illuminate\Console\Command;
 
-class IcsDataCommand extends Command
+class AbsenceUpdateInfoCommand extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'command:IcsDataCommand';
+    protected $signature = 'command:AbsenceUpdateInfoCommand';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Getting and parsing timetape data';
+    protected $description = 'Sending if updates occured';
 
     /**
      * Create a new command instance.
@@ -39,15 +39,12 @@ class IcsDataCommand extends Command
      */
     public function handle()
     {
-        $rawData = IcsData::get();
-        $calender = app(ParseCalendarContract::class);
-        $events = $calender->parsedCalendar($rawData);
-
         $absenceRepository = app(AbsenceRepositoryInterface::class);
-        $absenceRepository->deleteObsolete();
-        foreach ($events as $event) {
-            $absenceRepository->create($event);
-        }
+        $updates = $absenceRepository->absenceUpdated();
+
+        $message = app(MessageServiceContract::class);
+        $message->setAbsentUpdate($updates);
+        $message->send();
 
     }
 }
