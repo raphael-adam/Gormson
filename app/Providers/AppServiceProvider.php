@@ -11,6 +11,7 @@ use App\Contracts\MessageServiceContract;
 use App\Service\ParseCalendar;
 use App\Service\IcsDataService;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,5 +35,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Schema::defaultStringLength(191);
     }
 }
